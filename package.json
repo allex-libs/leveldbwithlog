@@ -1,0 +1,20 @@
+{
+  "name": "allex_leveldbwithloglib",
+  "version": "1.0.0",
+  "description": "AllexJS for LevelDBHandler with log",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.hers.rs:allex_libs/leveldbwithlog"
+  },
+  "keywords": [
+    "ecosystem:AllexJS",
+    "leveldb",
+    "log"
+  ],
+  "author": "HERS Belgrade",
+  "license": "ISC"
+}
