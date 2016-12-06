@@ -14,6 +14,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
       listenable: true,
       dbcreationoptions: {
         //valueEncoding: encodingFor(leveldboptshash.dbcreationoptions, path)
+        keyEncoding: dbcreationoptions.keyEncoding,
         valueEncoding: dbcreationoptions.valueEncoding || 'json'
       }
     }
