@@ -7,16 +7,18 @@ function createLevelDBWithLog (execlib, leveldblib) {
     qlib = lib.qlib;
 
   function leveldboptshash2obj (leveldboptshash, path) {
-    var dbcreationoptions = leveldboptshash.dbcreationoptions || {};
+    var dbcreationoptions = leveldboptshash.dbcreationoptions || {},
+      outdbcreationoptions = {
+        valueEncoding: dbcreationoptions.valueEncoding || 'json'
+      };
+    if (dbcreationoptions.keyEncoding) {
+      outdbcreationoptions.keyEncoding = dbcreationoptions.keyEncoding;
+    }
     leveldblib.encodingMakeup(dbcreationoptions, path);
     return {
       dbname: Path.join(path, leveldboptshash.dbname),
       listenable: true,
-      dbcreationoptions: {
-        //valueEncoding: encodingFor(leveldboptshash.dbcreationoptions, path)
-        keyEncoding: dbcreationoptions.keyEncoding,
-        valueEncoding: dbcreationoptions.valueEncoding || 'json'
-      }
+      dbcreationoptions: outdbcreationoptions
     }
   }
 
@@ -29,7 +31,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
     this.kvstorage = null;
     this.log = null;
     this.locks = new qlib.JobCollection();
-    this.startDBs();
+    this.startDBs(prophash.starteddefer);
   }
 
   LevelDBWithLog.prototype.destroy = function () {
@@ -49,12 +51,25 @@ function createLevelDBWithLog (execlib, leveldblib) {
     this.dbdirpath = null;
   };
 
-  LevelDBWithLog.prototype.startDBs = function () {
+  LevelDBWithLog.prototype.startDBs = function (starteddefer) {
     q.allSettled(this.createStartDBPromises()).then(
-      this.onDBsReady.bind(this)
+      this.onDBsReady.bind(this, starteddefer)
     ).fail(
-      this.destroy.bind(this)
+      this.onDBsFailed.bind(this, starteddefer)
     );
+  };
+
+  LevelDBWithLog.prototype.onDBsReady = function (starteddefer) {
+    if (starteddefer) {
+      starteddefer.resolve(this);
+    }
+  };
+
+  LevelDBWithLog.prototype.onDBsFailed = function (starteddefer, reason) {
+    if (starteddefer) {
+      starteddefer.reject(reason);
+    }
+    this.destroy();
   };
 
   LevelDBWithLog.prototype.createStartDBPromises = function () {
@@ -114,6 +129,8 @@ function createLevelDBWithLog (execlib, leveldblib) {
   LevelDBWithLog.addMethods = function (klass) {
     lib.inheritMethods(klass, LevelDBWithLog,
       'startDBs',
+      'onDBsReady',
+      'onDBsFailed',
       'createStartDBPromises',
       'logCreateObj',
       'put',
