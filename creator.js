@@ -8,13 +8,15 @@ function createLevelDBWithLog (execlib, leveldblib) {
 
   function leveldboptshash2obj (leveldboptshash, path) {
     var dbcreationoptions = leveldboptshash.dbcreationoptions || {},
-      outdbcreationoptions = {
-        valueEncoding: dbcreationoptions.valueEncoding || 'json'
-      };
+      outdbcreationoptions;
+    leveldblib.encodingMakeup(dbcreationoptions, path);
+    outdbcreationoptions = {
+      valueEncoding: dbcreationoptions.valueEncoding || 'json'
+    }; 
     if (dbcreationoptions.keyEncoding) {
       outdbcreationoptions.keyEncoding = dbcreationoptions.keyEncoding;
     }
-    leveldblib.encodingMakeup(dbcreationoptions, path);
+    //console.log(dbcreationoptions.valueEncoding, '=>', outdbcreationoptions.valueEncoding, dbcreationoptions, leveldboptshash);
     return {
       dbname: Path.join(path, leveldboptshash.dbname),
       listenable: true,
@@ -97,6 +99,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
   LevelDBWithLog.prototype.logCreateObj = function () {
     var lo = leveldboptshash2obj(this.logopts, this.dbdirpath);
     lo.startfromone = true;
+    //console.log('logCreateObj', this.logopts, '=>', lo);
     return lo;
   };
 
