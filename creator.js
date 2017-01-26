@@ -4,7 +4,8 @@ function createLevelDBWithLog (execlib, leveldblib) {
   'use strict';
   var lib = execlib.lib,
     q = lib.q,
-    qlib = lib.qlib;
+    qlib = lib.qlib,
+    HookMixin = require('./hookmixincreator')(execlib, leveldblib);
 
   function leveldboptshash2obj (leveldboptshash, path) {
     var dbcreationoptions = leveldboptshash.dbcreationoptions || {},
@@ -99,7 +100,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
   LevelDBWithLog.prototype.logCreateObj = function () {
     var lo = leveldboptshash2obj(this.logopts, this.dbdirpath);
     lo.startfromone = true;
-    //console.log('logCreateObj', this.logopts, '=>', lo);
+    console.log('logCreateObj', this.logopts, '=>', lo);
     return lo;
   };
 
@@ -145,7 +146,11 @@ function createLevelDBWithLog (execlib, leveldblib) {
     );
   };
 
-  return q(LevelDBWithLog);
+  return q({
+    LevelDBWithLog: LevelDBWithLog,
+    HookMixin: HookMixin,
+    Hook: require('./hookcreator')(execlib, leveldblib, HookMixin)
+  });
 }
 
 module.exports = createLevelDBWithLog;
