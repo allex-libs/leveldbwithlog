@@ -100,7 +100,6 @@ function createLevelDBWithLog (execlib, leveldblib) {
   LevelDBWithLog.prototype.logCreateObj = function () {
     var lo = leveldboptshash2obj(this.logopts, this.dbdirpath);
     lo.startfromone = true;
-    console.log('logCreateObj', this.logopts, '=>', lo);
     return lo;
   };
 
