@@ -128,6 +128,14 @@ function createLevelDBWithLog (execlib, leveldblib) {
     return this.resets.put(resetid, [username, minmoment, maxmoment, txncount]);
   };
 
+  LevelDBWithLog.prototype.query = function (filterdesc, defer, starteddefer) {
+    return this.kvstorage.query(filterdesc, defer, starteddefer);
+  };
+
+  LevelDBWithLog.prototype.queryLog = function (filterdesc, defer, starteddefer) {
+    return this.log.query(filterdesc, defer, starteddefer);
+  };
+
 
   LevelDBWithLog.addMethods = function (klass) {
     lib.inheritMethods(klass, LevelDBWithLog,
@@ -141,7 +149,9 @@ function createLevelDBWithLog (execlib, leveldblib) {
       'safeGet',
       'getWDefault',
       'del',
-      'recordReset'
+      'recordReset',
+      'query',
+      'queryLog'
     );
   };
 
