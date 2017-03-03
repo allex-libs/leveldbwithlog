@@ -9,7 +9,8 @@ function createLevelDBWithLog (execlib, leveldblib) {
 
   function leveldboptshash2obj (leveldboptshash, path) {
     var dbcreationoptions = leveldboptshash.dbcreationoptions || {},
-      outdbcreationoptions;
+      outdbcreationoptions,
+      ret;
     leveldblib.encodingMakeup(dbcreationoptions, path);
     outdbcreationoptions = {
       valueEncoding: dbcreationoptions.valueEncoding || 'json'
@@ -18,11 +19,15 @@ function createLevelDBWithLog (execlib, leveldblib) {
       outdbcreationoptions.keyEncoding = dbcreationoptions.keyEncoding;
     }
     //console.log(dbcreationoptions.valueEncoding, '=>', outdbcreationoptions.valueEncoding, dbcreationoptions, leveldboptshash);
-    return {
+    ret = {
       dbname: Path.join(path, leveldboptshash.dbname),
       listenable: true,
       dbcreationoptions: outdbcreationoptions
+    };
+    if (leveldboptshash.mode) {
+      ret.mode = leveldboptshash.mode;
     }
+    return ret;
   }
 
   function LevelDBWithLog (prophash) {
@@ -80,12 +85,13 @@ function createLevelDBWithLog (execlib, leveldblib) {
       kvso = leveldboptshash2obj(this.kvstorageopts, this.dbdirpath),
       ld = q.defer(),
       lo = this.logCreateObj(),
-      rd = q.defer();
+      rd = q.defer(),
+      kvstoragector = kvso.mode==='array' ? leveldblib.DBArray : leveldblib.LevelDBHandler;
 
     kvso.starteddefer = kvsd;
     lo.starteddefer = ld;
 
-    this.kvstorage = leveldblib.createDBHandler(kvso);
+    this.kvstorage = new kvstoragector(kvso); //leveldblib.createDBHandler(kvso);
     this.log = new (leveldblib.DBArray)(lo);
     this.resets = leveldblib.createDBHandler({
       dbname: Path.join(this.dbdirpath, 'resets.db'),
