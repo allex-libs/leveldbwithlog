@@ -27,6 +27,9 @@ function createLevelDBWithLog (execlib, leveldblib) {
     if (leveldboptshash.mode) {
       ret.mode = leveldboptshash.mode;
     }
+    if ('startfromone' in leveldboptshash) {
+      ret.startfromone = leveldboptshash.startfromone;
+    }
     return ret;
   }
 
