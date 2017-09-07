@@ -7,6 +7,14 @@ function createLevelDBWithLog (execlib, leveldblib) {
     qlib = lib.qlib,
     HookMixin = require('./hookmixincreator')(execlib, leveldblib);
 
+  function pathfrom (path) {
+    return lib.isArray(path) ? Path.join.apply(Path, path) : path;
+  }
+
+  function pathjoin (path1, path2) {
+    return Path.join(pathfrom(path1), pathfrom(path2));
+  }
+
   function leveldboptshash2obj (leveldboptshash, path) {
     var dbcreationoptions = leveldboptshash.dbcreationoptions || {},
       outdbcreationoptions,
@@ -20,7 +28,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
     }
     //console.log(dbcreationoptions.valueEncoding, '=>', outdbcreationoptions.valueEncoding, dbcreationoptions, leveldboptshash);
     ret = {
-      dbname: Path.join(path, leveldboptshash.dbname),
+      dbname: pathjoin(path, leveldboptshash.dbname),
       listenable: true,
       dbcreationoptions: outdbcreationoptions
     };
@@ -97,7 +105,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
     this.kvstorage = new kvstoragector(kvso); //leveldblib.createDBHandler(kvso);
     this.log = new (leveldblib.DBArray)(lo);
     this.resets = leveldblib.createDBHandler({
-      dbname: Path.join(this.dbdirpath, 'resets.db'),
+      dbname: pathjoin(this.dbdirpath, 'resets.db'),
       dbcreationoptions: {
         bufferValueEncoding: ['String', 'UInt48LE', 'UInt48LE', 'UInt32LE']
         //username, minmoment, maxmoment, txncount
