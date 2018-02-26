@@ -49,6 +49,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
     this.logopts.dbname = this.logopts.dbname || 'log.db';
     this.kvstorage = null;
     this.log = null;
+    this.resets = null;
     this.locks = new qlib.JobCollection();
     this.startDBs(prophash.starteddefer);
   }
@@ -58,6 +59,10 @@ function createLevelDBWithLog (execlib, leveldblib) {
       this.locks.destroy();
     }
     this.locks = null;
+    if (this.resets) {
+      this.resets.destroy();
+    }
+    this.resets = null;
     if (this.log) {
       this.log.destroy();
     }
@@ -68,6 +73,27 @@ function createLevelDBWithLog (execlib, leveldblib) {
     this.kvstorage = null;
     this.kvstoragename = null;
     this.dbdirpath = null;
+  };
+
+  function destroyerAfterDrop (ldbwl) {
+    ldbwl.destroy();
+    return true;
+  }
+  LevelDBWithLog.prototype.drop = function () {
+    var promises = [], dad = destroyerAfterDrop.bind(null, this);
+    if (this.kvstorage) {
+      promises.push(this.kvstorage.drop());
+    }
+    if (this.log) {
+      promises.push(this.log.drop());
+    }
+    if (this.resets) {
+      promises.push(this.resets.drop());
+    }
+    return qlib.promise2decision(q.all(promises),
+      dad,
+      dad
+    );
   };
 
   LevelDBWithLog.prototype.startDBs = function (starteddefer) {
@@ -156,6 +182,7 @@ function createLevelDBWithLog (execlib, leveldblib) {
 
   LevelDBWithLog.addMethods = function (klass) {
     lib.inheritMethods(klass, LevelDBWithLog,
+      'drop',
       'startDBs',
       'onDBsReady',
       'onDBsFailed',

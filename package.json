@@ -1,6 +1,6 @@
 {
   "name": "allex_leveldbwithloglib",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AllexJS for LevelDBHandler with log",
   "main": "index.js",
   "scripts": {
