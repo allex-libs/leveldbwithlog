@@ -199,11 +199,11 @@ function createLevelDBWithLog (execlib, leveldblib) {
     );
   };
 
-  return q({
+  return {
     LevelDBWithLog: LevelDBWithLog,
     HookMixin: HookMixin,
     Hook: require('./hookcreator')(execlib, leveldblib, HookMixin)
-  });
+  };
 }
 
 module.exports = createLevelDBWithLog;
